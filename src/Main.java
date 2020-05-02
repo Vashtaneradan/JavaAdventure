@@ -1,4 +1,8 @@
+import static helpers.Terminal.*;
+
 public class Main {
+
+    // javac -sourcepath src src/Main.java -d ./out/production/JavaAdventure/ ; java -cp ./out/production/JavaAdventure/ Main
 
     public static final int FOREGROUND_BLACK = 30;
     public static final int FOREGROUND_RED = 31;
@@ -8,20 +12,6 @@ public class Main {
     public static final int FOREGROUND_MAGENTA = 35;
     public static final int FOREGROUND_CYAN = 36;
     public static final int FOREGROUND_WHITE = 37;
-
-    public static void setColor(int colorCode) {
-        System.out.print("\033[" + colorCode + "m");
-    }
-
-    public static void printWithColor(String text, int color) {
-        setColor(color);
-        System.out.print(text);
-    }
-
-    public static void printlnWithColor(String text, int color) {
-        setColor(color);
-        System.out.println(text);
-    }
 
     public static void printInfo(String name, int healthPoints) {
         printWithColor("Name: ", FOREGROUND_WHITE);
@@ -33,19 +23,19 @@ public class Main {
 
     public static void printHealthPointSword(int healthPoint) {
 
-        int coloredEqualSigns = healthPoint / 4;
+        int greenEqualSigns = (healthPoint + 3) / 4;
 
         printlnWithColor("            //", FOREGROUND_WHITE);
         printWithColor("()=========>>", FOREGROUND_WHITE);
 
         // print green Sword part
-        for (int i = 0; i < coloredEqualSigns; i ++) {
+        for (int i = 0; i < greenEqualSigns; i++) {
 
             printWithColor("=", FOREGROUND_GREEN);
         }
 
         // print remaining part in red
-        for (int i = 0; i < 25 - coloredEqualSigns; i ++) {
+        for (int i = 0; i < 25 - greenEqualSigns; i++) {
 
             printWithColor("=", FOREGROUND_RED);
         }
@@ -64,24 +54,79 @@ public class Main {
         }
     }
 
+    public static void shortDelay() {
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
-        String name = "Andrea";
-        int healthPoints = 100;
+//        String name = "Andrea";
+//        int healthPoints = 100;
+//
+//        printInfo(name, healthPoints);
+//        printHealthPointSword(healthPoints);
 
-        printInfo(name, healthPoints);
-        printHealthPointSword(healthPoints);
 
-        while (healthPoints > 0) {
-            int damage = (int) (- 10 * Math.random()) -1;
-            printWithColor("Damage: ", FOREGROUND_MAGENTA);
-            printlnWithColor(damage + "", FOREGROUND_RED);
-            healthPoints = calculateNewHealthPoints(healthPoints, damage);
-            printInfo(name, healthPoints);
-            printHealthPointSword(healthPoints);
-            System.out.println();
+//        while (healthPoints > 0) {
+//            int damage = (int) (- 10 * Math.random()) -1;
+//            printWithColor("Damage: ", FOREGROUND_MAGENTA);
+//            printlnWithColor(damage + "", FOREGROUND_RED);
+//            healthPoints = calculateNewHealthPoints(healthPoints, damage);
+//            printInfo(name, healthPoints);
+//            printHealthPointSword(healthPoints);
+//            System.out.println();
+//        }
+//
+//        System.out.println(name + " ist tot!!!");
+
+        clearScreen();
+        disableCursor();
+
+        boolean[] isWall = new boolean[20];
+        isWall[1] = true;
+        isWall[10] = true;
+        isWall[19] = true;
+
+        int position = 4;
+        while (true) {
+            //process input
+            int speed = (int) (Math.random() * 3) - 1;
+
+            //game logic
+            if (speed == -1) {
+                if (!isWall[position - 1]) {
+                    position = position - 1;
+                }
+            } else if (speed == 1) {
+                if (!isWall[position + 1]) {
+                    position = position + 1;
+                }
+            }
+
+            //render Game
+            setColor(FOREGROUND_WHITE);
+            setCursor(1, 1);
+            for (int i = 1; i < isWall.length; i++) {
+                if (isWall[i]) {
+                    System.out.print("#");
+                } else {
+                    System.out.print(" ");
+                }
+            }
+
+
+            setCursor(1, position);
+            printWithColor("W", FOREGROUND_GREEN);
+
+            shortDelay();
         }
 
-        System.out.println(name + " ist tot!!!");
+
+//        resetColors();
+
     }
 
 }
