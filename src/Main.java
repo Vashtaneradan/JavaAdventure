@@ -13,6 +13,9 @@ public class Main {
     public static final int FOREGROUND_CYAN = 36;
     public static final int FOREGROUND_WHITE = 37;
 
+    public static final int WIDTH = 80;
+    public static final int HEIGHT = 40;
+
     public static void printInfo(String name, int healthPoints) {
         printWithColor("Name: ", FOREGROUND_WHITE);
         printlnWithColor(name, FOREGROUND_CYAN);
@@ -56,7 +59,7 @@ public class Main {
 
     public static void shortDelay() {
         try {
-            Thread.sleep(250);
+            Thread.sleep(50);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -82,50 +85,114 @@ public class Main {
 //
 //        System.out.println(name + " ist tot!!!");
 
+        //Setup
         clearScreen();
         disableCursor();
 
-        boolean[] isWall = new boolean[20];
-        isWall[1] = true;
-        isWall[10] = true;
-        isWall[19] = true;
+        //create Wall
+        TileType[][] tileType = new TileType[HEIGHT][WIDTH];
+        for (int x = 0; x < WIDTH; x++) {
+            tileType[0]         [x] = TileType.WALL;
+            tileType[HEIGHT - 1][x] = TileType.WALL;
+        }
+        for (int y = 0; y < HEIGHT; y++) {
+            tileType[y]        [0]= TileType.WALL;
+            tileType[y][WIDTH - 1] = TileType.WALL;
+        }
 
-        int position = 4;
-        while (true) {
-            //process input
-            int speed = (int) (Math.random() * 3) - 1;
-
-            //game logic
-            if (speed == -1) {
-                if (!isWall[position - 1]) {
-                    position = position - 1;
-                }
-            } else if (speed == 1) {
-                if (!isWall[position + 1]) {
-                    position = position + 1;
-                }
-            }
-
-            //render Game
-            setColor(FOREGROUND_WHITE);
-            setCursor(1, 1);
-            for (int i = 1; i < isWall.length; i++) {
-                if (isWall[i]) {
+        // render Wall
+        setColor(FOREGROUND_WHITE);
+        for (int y = 0; y < HEIGHT; y++) {
+            setCursor(y , 0);
+            for (int x = 0; x < WIDTH; x++) {
+                if (tileType[y][x] == TileType.WALL) {
                     System.out.print("#");
                 } else {
                     System.out.print(" ");
                 }
             }
+        }
 
 
-            setCursor(1, position);
+        int positionX = 4;
+        int positionY = 8;
+
+        boolean isPlaying = true;
+        while (isPlaying) {
+
+            //process input
+            int speedX = 0;
+            int speedY = 0;
+
+            int direction = (int) (Math.random() * 4);
+
+            //generate random direction
+            switch (direction) {
+                case 0: {
+                    speedX = 1;
+                    break;
+                }
+                case 1: {
+                    speedX = -1;
+                    break;
+                }
+                case 2: {
+                    speedY = -1;
+                    break;
+                }
+                default: {
+                    speedY = 1;
+                    break;
+                }
+            }
+
+            //clear screen
+            setCursor(positionY, positionX);
+            printWithColor(" ", FOREGROUND_WHITE);
+
+            //game logic
+            int targetPositionX = positionX + speedX;
+            int targetPositionY = positionY + speedY;
+
+            switch (tileType[targetPositionY][targetPositionX]) {
+                case EMPTY: {
+                    //nothing will happen
+                    break;
+                }
+                case WALL: {
+                    targetPositionX = positionX;
+                    targetPositionY = positionY;
+                    break;
+                }
+                case LAVA: {
+                    //TODO: burn
+                    System.out.print("burn");
+                    break;
+                }
+                case ICE: {
+                    //TODO: set automatic slide velocity
+                    System.out.print("slide.... huiiiiiii");
+                    break;
+                }
+                case STAIRCASE: {
+                    System.out.print("du bist da");
+                    isPlaying = false;
+                    break;
+                }
+            }
+
+            positionX = targetPositionX;
+            positionY = targetPositionY;
+
+            //render Game
+            setCursor(positionY, positionX);
             printWithColor("W", FOREGROUND_GREEN);
 
             shortDelay();
         }
 
-
-//        resetColors();
+        clearScreen();
+        resetColors();
 
     }
 

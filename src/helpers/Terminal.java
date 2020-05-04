@@ -2,7 +2,7 @@ package helpers;
 
 public class Terminal {
     public static void setCursor(int y, int x) {
-        System.out.print("\033[" + y + ";" + x + "f");
+        System.out.print("\033[" + (y + 1) + ";" + (x + 1) + "f");
     }
 
     public static void clearScreen() {
